@@ -4,7 +4,7 @@
 # 此脚本用于自动设置和运行SillyTavern
 
 # 更新包管理器和软件包
-echo "更新软件包信息..."
+echo "更新软件包信息中...请确保软件为最新版并且已连接VPN"
 apt update && apt upgrade -y
 
 # 安装Git
