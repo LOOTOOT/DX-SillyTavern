@@ -24,3 +24,4 @@ echo "运行酒馆..."
 ./start.sh || bash start.sh
 
 echo "酒馆已经启动！"
+echo "感谢使用，本脚本来自贴吧道行歌"
