@@ -9,22 +9,25 @@ set -e # 如果任何命令失败，则退出脚本
 echo "检查网络连接..."
 ping -c 1 google.com > /dev/null 2>&1 || { echo "网络连接失败，请检查你的网络设置"; exit 1; }
 
+# 设置非交互模式，自动接受配置文件的更改
+export DEBIAN_FRONTEND=noninteractive
+
 # 检查dpkg是否需要配置
 echo "检查是否存在dpkg配置问题..."
 dpkg --configure -a
 
 # 更新软件包信息
 echo "更新软件包信息..."
-apt update
+apt-get update -y
 
-# 升级所有软件包
+# 升级所有软件包，自动接受新的配置文件
 echo "升级软件包..."
-apt upgrade -y
+apt-get upgrade -y -o Dpkg::Options::="--force-confnew"
 
 # 清理可能存在的无用软件包
 echo "清理无用软件包..."
-apt autoclean
-apt clean
+apt-get autoclean -y
+apt-get clean -y
 
 # 检查Git是否已安装
 if ! command -v git &> /dev/null; then
