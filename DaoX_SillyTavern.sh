@@ -3,6 +3,8 @@
 # 本脚本来自贴吧道行歌 - DaoX_SillyTavern
 # 此脚本用于自动设置和运行SillyTavern
 
+echo "请确保软件为最新版并且已连接VPN"
+
 # 检查并修复任何dpkg中断问题
 dpkg --configure -a
 
