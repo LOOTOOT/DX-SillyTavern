@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# 本脚本来自贴吧道行歌 - DaoX_SillyTavern
-# 此脚本用于自动设置和运行SillyTavern
+# 本脚本由贴吧道行歌提供 - DoX_sillytavern
+# 此脚本用于自动安装和运行SillyTavern
 
-set -e # 如果任何命令以非零状态退出，则立即停止执行脚本
+set -e # 如果任何命令失败，则退出脚本
 
 # 检查网络连接
 echo "检查网络连接..."
@@ -15,16 +15,16 @@ dpkg --configure -a
 
 # 更新软件包信息
 echo "更新软件包信息..."
-apt-get update
+apt update
 
 # 升级所有软件包
 echo "升级软件包..."
-apt-get upgrade -y
+apt upgrade -y
 
 # 清理可能存在的无用软件包
 echo "清理无用软件包..."
-apt-get clean
-apt-get autoclean
+apt autoclean
+apt clean
 
 # 检查Git是否已安装
 if ! command -v git &> /dev/null; then
@@ -35,12 +35,15 @@ else
 fi
 
 # 克隆SillyTavern仓库
-echo "克隆SillyTavern仓库..."
-git clone https://github.com/LOOTOOT/DoX_sillytavern || { echo "无法克隆仓库"; exit 1; }
+REPO_URL="https://github.com/SillyTavern/SillyTavern.git"
+echo "克隆SillyTavern仓库: $REPO_URL"
+git clone $REPO_URL || { echo "无法克隆仓库"; exit 1; }
 
 # 进入SillyTavern目录并安装node.js和依赖项
-echo "安装node.js和依赖项..."
+echo "进入SillyTavern目录..."
 cd SillyTavern
+
+echo "安装node.js和依赖项..."
 if ! command -v node &> /dev/null; then
     pkg install nodejs -y
 else
@@ -48,9 +51,9 @@ else
 fi
 npm install || { echo "安装依赖失败"; exit 1; }
 
-# 运行酒馆
-echo "运行酒馆..."
+# 运行SillyTavern
+echo "运行SillyTavern..."
 ./start.sh || bash start.sh
 
-echo "酒馆已经启动！"
-echo "感谢使用，本脚本来自贴吧道行歌"
+echo "SillyTavern已经启动！"
+echo "感谢使用，本脚本由贴吧道行歌提供"
