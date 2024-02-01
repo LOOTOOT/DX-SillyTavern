@@ -1,64 +1,30 @@
 #!/bin/bash
 
-# 显示欢迎和声明信息
-echo "欢迎使用本脚本进行SillyTavern的自动部署。"
+# 如果任何命令失败，则退出脚本
+set -e
+
+# 声明信息
 echo "本脚本由贴吧道行歌提供。只负责部署，部署完成即视为任务结束。"
-echo "如需咨询酒馆如何连接claude等问题，可以继续提问，"
-echo "但请做好支付咨询费用的准备。请理解，我的时间也非常宝贵。"
-echo "我真的不想因为原本免费现在3元的脚本陪小白消耗一天的时间。"
-echo "敬请谅解。"
-echo "如果你同意以上条款，请输入Y继续。输入N则退出安装。"
-
-# 读取用户输入
-read -p "请输入您的选择 (Y/N): " user_choice
-
-case $user_choice in
-    [Yy]* )
-        echo "您已同意条款，开始部署..."
-        ;;
-    [Nn]* )
-        echo "您选择了退出，脚本将不会执行。"
-        exit 1
-        ;;
-    * )
-        echo "无效的输入，脚本将退出。"
-        exit 1
-        ;;
-esac
-
-
-set -e # 如果任何命令失败，则退出脚本
-
+echo "酒馆是一个使用各种AI的工具，用户需自备能使用AI的代理、API或曲奇。如需咨询酒馆如何连接claude等问题，可在必要时联系作者并做好支付咨询费用的准备。"
+echo "请理解，作者的时间也非常宝贵。"
+echo "脚本执行中..."
 
 # 检查网络连接
 echo "检查网络连接..."
-ping -c 1 google.com > /dev/null 2>&1 || { echo "网络连接失败，请检查你的网络设置，包括但不限于vpn, WiFi和流量"; exit 1; }
-
-
-# 设置非交互模式，自动接受配置文件的更改
-export DEBIAN_FRONTEND=noninteractive
-
-
-# 检查dpkg是否需要配置
-echo "检查是否存在dpkg配置问题..."
-dpkg --configure -a
-
+ping -c 1 google.com > /dev/null 2>&1 || { echo "网络连接失败，请检查你的网络设置"; exit 1; }
 
 # 更新软件包信息
 echo "更新软件包信息..."
 apt-get update -y
 
-
 # 升级所有软件包，自动接受新的配置文件
 echo "升级软件包..."
 apt-get upgrade -y -o Dpkg::Options::="--force-confnew"
-
 
 # 清理可能存在的无用软件包
 echo "清理无用软件包..."
 apt-get autoclean -y
 apt-get clean -y
-
 
 # 检查Git是否已安装
 if ! command -v git &> /dev/null; then
@@ -68,17 +34,14 @@ else
     echo "Git已安装，跳过此步骤."
 fi
 
-
 # 克隆SillyTavern仓库
 REPO_URL="https://github.com/SillyTavern/SillyTavern.git"
 echo "克隆SillyTavern仓库: $REPO_URL"
 git clone $REPO_URL || { echo "无法克隆仓库"; exit 1; }
 
-
 # 进入SillyTavern目录并安装node.js和依赖项
 echo "进入SillyTavern目录..."
 cd SillyTavern
-
 
 echo "安装node.js和依赖项..."
 if ! command -v node &> /dev/null; then
@@ -88,11 +51,9 @@ else
 fi
 npm install || { echo "安装依赖失败"; exit 1; }
 
-
 # 运行SillyTavern
 echo "运行SillyTavern..."
 ./start.sh || bash start.sh
-
 
 echo "SillyTavern已经启动！"
 echo "感谢使用，本脚本由贴吧道行歌提供"
