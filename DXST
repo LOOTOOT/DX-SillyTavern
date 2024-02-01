@@ -13,6 +13,7 @@ echo "如果你不同意，请输入 N 退出安装。"
 read -p "你同意上述条款并愿意继续吗？(Y/N) " -n 1 -r
 echo    # (optional) move to a new line
 
+
 if [[ ! $REPLY =~ ^[Yy]$ ]]
 then
     echo "您选择了退出安装，脚本现在将终止。"
