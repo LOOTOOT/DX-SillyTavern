@@ -1,59 +1,50 @@
 #!/bin/bash
-set -e # Exit on any error
 
-# Update Termux packages
+# 如果任何命令失败，则退出脚本
+set -e
+
+echo "开始部署clewd项目..."
+
+# 检查网络连接
+echo "检查网络连接..."
+ping -c 1 google.com > /dev/null 2>&1 || { echo "网络连接失败，请检查你的网络设置"; exit 1; }
+
+# 更新软件包信息
+echo "更新软件包信息..."
 pkg update -y
-pkg upgrade -y
 
-# Install proot-distro and other necessary packages
-pkg install proot-distro git vim curl xz-utils -y
-
-# Install Ubuntu
-proot-distro install ubuntu
-current="/data/data/com.termux/files/usr/var/lib/proot-distro/installed-rootfs/ubuntu"
-
-# Check if Ubuntu is installed successfully
-if [ ! -d "$current" ]; then
-  echo "Ubuntu installation failed. Please check your network or try a manual installation."
-  exit 1
-fi
-echo "Ubuntu has been successfully installed inside Termux."
-
-# Enter Ubuntu environment
-proot-distro login ubuntu
-
-# Install Node.js and Python inside Ubuntu (if required by clewd)
-NODE_VERSION="node-v20.10.0-linux-arm64"
-if [ ! -d "/root/$NODE_VERSION" ]; then
-    curl -O "https://nodejs.org/dist/v20.10.0/$NODE_VERSION.tar.xz"
-    tar -xf "$NODE_VERSION.tar.xz" -C /root/
-    echo "export PATH=\$PATH:/root/$NODE_VERSION/bin" >> "/etc/profile"
+# 安装Git
+if ! command -v git &> /dev/null; then
+    echo "安装Git..."
+    pkg install git -y
+else
+    echo "Git已安装，跳过此步骤."
 fi
 
-# Install Python and pip (if clewd is a Python project)
-pkg install python -y
-python -m pip install --upgrade pip
+# 安装Node.js
+NODE_VERSION="20.4.0"
+if ! command -v node &> /dev/null || [[ "$(node -v)" != "v$NODE_VERSION" ]]; then
+    echo "安装Node.js..."
+    pkg install nodejs -y
+    # 如果上面的命令没有安装20.4.0或更高版本的Node.js，您可能需要手动下载并安装它
+else
+    echo "Node.js已安装，跳过此步骤."
+fi
 
-# Clone the clewd repository
-git clone -b test https://github.com/teralomaniac/clewd
+# 克隆clewd仓库
+REPO_URL="https://github.com/teralomaniac/clewd.git"
+echo "克隆clewd仓库: $REPO_URL"
+git clone $REPO_URL || { echo "无法克隆仓库"; exit 1; }
+
+# 进入clewd目录并安装依赖项
+echo "进入clewd目录..."
 cd clewd
 
-# Install Python dependencies (if clewd is a Python project)
-if [ -f "requirements.txt" ]; then
-    python -m pip install -r requirements.txt
-fi
+echo "安装依赖项..."
+npm install --no-audit --fund false || { echo "安装依赖失败"; exit 1; }
 
-# Perform any additional necessary setup for clewd here
-# ... (custom setup commands)
+# 运行clewd.js
+echo "运行clewd.js..."
+node clewd.js || { echo "运行clewd.js失败"; exit 1; }
 
-# Set up the startup script for clewd (replace with actual clewd startup command)
-echo "bash /root/start_clewd.sh" >> "/root/.bashrc"
-
-# Exit Ubuntu environment
-exit
-
-# Configure Termux to login to Ubuntu automatically on startup
-echo "proot-distro login ubuntu" >> "$HOME/.bashrc"
-
-echo "clewd is now set up and will start with Ubuntu in Termux."
-exit
+echo "clewd已经启动！"
