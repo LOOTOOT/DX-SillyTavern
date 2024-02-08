@@ -1,0 +1,59 @@
+#!/bin/bash
+set -e # Exit on any error
+
+# Update Termux packages
+pkg update -y
+pkg upgrade -y
+
+# Install proot-distro and other necessary packages
+pkg install proot-distro git vim curl xz-utils -y
+
+# Install Ubuntu
+proot-distro install ubuntu
+current="/data/data/com.termux/files/usr/var/lib/proot-distro/installed-rootfs/ubuntu"
+
+# Check if Ubuntu is installed successfully
+if [ ! -d "$current" ]; then
+  echo "Ubuntu installation failed. Please check your network or try a manual installation."
+  exit 1
+fi
+echo "Ubuntu has been successfully installed inside Termux."
+
+# Enter Ubuntu environment
+proot-distro login ubuntu
+
+# Install Node.js and Python inside Ubuntu (if required by clewd)
+NODE_VERSION="node-v20.10.0-linux-arm64"
+if [ ! -d "/root/$NODE_VERSION" ]; then
+    curl -O "https://nodejs.org/dist/v20.10.0/$NODE_VERSION.tar.xz"
+    tar -xf "$NODE_VERSION.tar.xz" -C /root/
+    echo "export PATH=\$PATH:/root/$NODE_VERSION/bin" >> "/etc/profile"
+fi
+
+# Install Python and pip (if clewd is a Python project)
+pkg install python -y
+python -m pip install --upgrade pip
+
+# Clone the clewd repository
+git clone -b test https://github.com/teralomaniac/clewd
+cd clewd
+
+# Install Python dependencies (if clewd is a Python project)
+if [ -f "requirements.txt" ]; then
+    python -m pip install -r requirements.txt
+fi
+
+# Perform any additional necessary setup for clewd here
+# ... (custom setup commands)
+
+# Set up the startup script for clewd (replace with actual clewd startup command)
+echo "bash /root/start_clewd.sh" >> "/root/.bashrc"
+
+# Exit Ubuntu environment
+exit
+
+# Configure Termux to login to Ubuntu automatically on startup
+echo "proot-distro login ubuntu" >> "$HOME/.bashrc"
+
+echo "clewd is now set up and will start with Ubuntu in Termux."
+exit
