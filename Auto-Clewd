@@ -4,7 +4,6 @@
 pkg update -y
 DEBIAN_FRONTEND=noninteractive apt-get upgrade -y -o Dpkg::Options::="--force-confnew" -o Dpkg::Options::="--force-confold"
 
-
 # 安装 proot-distro 和必要的软件包
 pkg install -y proot-distro git wget tar xz-utils
 
@@ -18,13 +17,21 @@ proot-distro login ubuntu
 
 # 下面的命令将在 Ubuntu 环境中执行
 
-# 安装 Node.js（选择合适的版本和架构）
-# 请根据 clewd 的要求选择正确的 Node.js 版本
+# 检测设备架构并下载相应版本的 Node.js
+ARCH=$(uname -m)
 NODE_VERSION="v20.4.0"
+if [ "$ARCH" = "aarch64" ]; then
+    NODE_DISTRO="linux-arm64"
+elif [ "$ARCH" = "arm" ]; then
+    NODE_DISTRO="linux-armv7l"
+else
+    NODE_DISTRO="linux-x64"
+fi
+
 echo "安装 Node.js 版本 $NODE_VERSION..."
-wget "https://nodejs.org/dist/$NODE_VERSION/node-$NODE_VERSION-linux-x64.tar.xz"
-tar -xf "node-$NODE_VERSION-linux-x64.tar.xz"
-export PATH=$PATH:~/node-$NODE_VERSION-linux-x64/bin
+wget "https://nodejs.org/dist/$NODE_VERSION/node-$NODE_VERSION-$NODE_DISTRO.tar.xz"
+tar -xf "node-$NODE_VERSION-$NODE_DISTRO.tar.xz"
+export PATH=$PATH:~/node-$NODE_VERSION-$NODE_DISTRO/bin
 
 # 更新 npm 到最新版本
 npm install -g npm@latest
