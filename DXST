@@ -1,17 +1,16 @@
 #!/bin/bash
 
-# 如果任何命令失败，则退出脚本
 set -e
 
 # 声明信息
-echo "本脚本由贴吧道行歌提供。只负责部署，部署完成即视为任务结束。"
-echo "酒馆是一个使用各种AI的工具，用户需自备能使用AI的代理、API或曲奇。如需咨询酒馆如何连接claude等问题，可在必要时联系作者并做好支付咨询费用的准备。"
-echo "请理解，作者的时间也非常宝贵。"
+echo "本脚本由道行歌/JoeY制作"
+echo "酒馆是一个使用各种AI的工具，用户需自备能使用AI的代理、API或曲奇。如需咨询酒馆如何连接claude等问题，可在必要时查看爱发电主页联系作者"
+echo "爱发电地址：https://afdian.net/a/JoeY400请理解，作者的时间也非常宝贵。"
 echo "脚本执行中..."
 
-# 检查网络连接
+# 检查网络状况
 echo "检查网络连接..."
-ping -c 1 google.com > /dev/null 2>&1 || { echo "网络连接失败，请检查你的网络设置"; exit 1; }
+ping -c 1 google.com > /dev/null 2>&1 || { echo "网络连接失败，请检查你的网络设置。梯子不行就换，信号不行就wifi,5G互换"; exit 1; }
 
 # 更新软件包信息
 echo "更新软件包信息..."
@@ -37,7 +36,7 @@ fi
 # 克隆SillyTavern仓库
 REPO_URL="https://github.com/SillyTavern/SillyTavern.git"
 echo "克隆SillyTavern仓库: $REPO_URL"
-git clone $REPO_URL || { echo "无法克隆仓库"; exit 1; }
+git clone $REPO_URL || { echo "无法克隆仓库,清除Termux应用数据后再次运行脚本"; exit 1; }
 
 # 进入SillyTavern目录并安装node.js和依赖项
 echo "进入SillyTavern目录..."
@@ -56,4 +55,4 @@ echo "运行SillyTavern..."
 ./start.sh || bash start.sh
 
 echo "SillyTavern已经启动！"
-echo "感谢使用，本脚本由贴吧道行歌提供"
+echo "感谢使用"
