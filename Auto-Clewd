@@ -1,50 +1,53 @@
 #!/bin/bash
 
-# 如果任何命令失败，则退出脚本
-set -e
-
-echo "开始部署clewd项目..."
+# 声明信息
+echo "本脚本由贴吧道行歌提供。"
+echo "此脚本旨在Termux上部署clewd项目。"
 
 # 检查网络连接
 echo "检查网络连接..."
 ping -c 1 google.com > /dev/null 2>&1 || { echo "网络连接失败，请检查你的网络设置"; exit 1; }
 
-# 更新软件包信息
+# 更新Termux软件包
 echo "更新软件包信息..."
 pkg update -y
+pkg upgrade -y
 
-# 安装Git
-if ! command -v git &> /dev/null; then
-    echo "安装Git..."
-    pkg install git -y
-else
-    echo "Git已安装，跳过此步骤."
-fi
+# 安装必要工具
+echo "安装必要工具..."
+pkg install git proot-distro vim curl xz-utils -y
 
-# 安装Node.js
-NODE_VERSION="20.4.0"
-if ! command -v node &> /dev/null || [[ "$(node -v)" != "v$NODE_VERSION" ]]; then
+# 安装Ubuntu环境
+echo "安装Ubuntu环境..."
+proot-distro install ubuntu
+
+# 进入Ubuntu环境
+echo "配置Ubuntu环境..."
+proot-distro login ubuntu
+
+# 在Ubuntu环境下执行的命令
+inside_ubuntu() {
+    # 安装Node.js
     echo "安装Node.js..."
-    pkg install nodejs -y
-    # 如果上面的命令没有安装20.4.0或更高版本的Node.js，您可能需要手动下载并安装它
-else
-    echo "Node.js已安装，跳过此步骤."
-fi
+    curl -O https://nodejs.org/dist/v20.10.0/node-v20.10.0-linux-arm64.tar.xz
+    tar xf node-v20.10.0-linux-arm64.tar.xz
+    export PATH=$PATH:/root/node-v20.10.0-linux-arm64/bin
+    
+    # 克隆clewd仓库
+    echo "克隆clewd仓库..."
+    git clone https://github.com/teralomaniac/clewd.git || { echo "无法克隆仓库"; exit 1; }
+    
+    # 进入clewd目录并安装依赖项
+    echo "安装clewd依赖项..."
+    cd clewd
+    npm install --no-audit --fund false || { echo "安装依赖失败"; exit 1; }
+    
+    echo "clewd已经准备就绪！"
+}
 
-# 克隆clewd仓库
-REPO_URL="https://github.com/teralomaniac/clewd.git"
-echo "克隆clewd仓库: $REPO_URL"
-git clone $REPO_URL || { echo "无法克隆仓库"; exit 1; }
+# 在Ubuntu环境中执行安装命令
+echo "在Ubuntu环境中安装clewd..."
+proot-distro login ubuntu --user root --bind /dev --bind /proc --bind /sys --bind /data -- "$(declare -f inside_ubuntu); inside_ubuntu"
 
-# 进入clewd目录并安装依赖项
-echo "进入clewd目录..."
-cd clewd
-
-echo "安装依赖项..."
-npm install --no-audit --fund false || { echo "安装依赖失败"; exit 1; }
-
-# 运行clewd.js
-echo "运行clewd.js..."
-node clewd.js || { echo "运行clewd.js失败"; exit 1; }
-
-echo "clewd已经启动！"
+echo "clewd安装完成。"
+echo "感谢使用，本脚本由贴吧道行歌提供"
