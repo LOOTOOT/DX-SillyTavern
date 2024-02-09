@@ -5,7 +5,7 @@ pkg update -y
 apt-get upgrade -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew"
 
 # 安装 proot-distro 和必要的软件包
-pkg install -y proot-distro git wget tar
+pkg install -y proot-distro git wget tar xz-utils
 
 # 安装 Ubuntu 发行版（如果尚未安装）
 if ! proot-distro list | grep -q "ubuntu"; then
@@ -18,10 +18,15 @@ proot-distro login ubuntu
 # 下面的命令将在 Ubuntu 环境中执行
 
 # 安装 Node.js（选择合适的版本和架构）
-echo "安装 Node.js..."
-wget https://nodejs.org/dist/v16.14.0/node-v16.14.0-linux-x64.tar.xz
-tar -xf node-v16.14.0-linux-x64.tar.xz
-export PATH=$PATH:~/node-v16.14.0-linux-x64/bin
+# 请根据 clewd 的要求选择正确的 Node.js 版本
+NODE_VERSION="v20.4.0"
+echo "安装 Node.js 版本 $NODE_VERSION..."
+wget "https://nodejs.org/dist/$NODE_VERSION/node-$NODE_VERSION-linux-x64.tar.xz"
+tar -xf "node-$NODE_VERSION-linux-x64.tar.xz"
+export PATH=$PATH:~/node-$NODE_VERSION-linux-x64/bin
+
+# 更新 npm 到最新版本
+npm install -g npm@latest
 
 # 克隆 clewd 项目
 echo "克隆 clewd 项目..."
