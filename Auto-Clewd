@@ -47,4 +47,5 @@ npm install --no-audit --fund false || { echo "安装依赖失败"; exit 1; }
 echo "运行clewd.js..."
 node clewd.js || { echo "运行clewd.js失败"; exit 1; }
 
-echo "clewd已经启动！"
+echo "clewd已经启动！配置文件已创建！
+使用文件管理器编辑 config.js 以添加cookie，然后cd clewd 重启"
