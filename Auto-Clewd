@@ -1,51 +1,42 @@
 #!/bin/bash
 
-# 如果任何命令失败，则退出脚本
-set -e
-
-echo "开始部署clewd项目..."
-
-# 检查网络连接
-echo "检查网络连接..."
-ping -c 1 google.com > /dev/null 2>&1 || { echo "网络连接失败，请检查你的网络设置"; exit 1; }
-
-# 更新软件包信息
-echo "更新软件包信息..."
+# 更新 Termux 软件包并自动处理配置文件提示
 pkg update -y
+DEBIAN_FRONTEND=noninteractive apt-get upgrade -y -o Dpkg::Options::="--force-confnew" -o Dpkg::Options::="--force-confold"
 
-# 安装Git
-if ! command -v git &> /dev/null; then
-    echo "安装Git..."
-    pkg install git -y
+# 安装必要的软件包
+pkg install -y git wget tar xz-utils
+
+# 检测设备架构并下载相应版本的 Node.js
+ARCH=$(uname -m)
+NODE_VERSION="v20.4.0"
+if [ "$ARCH" = "aarch64" ]; then
+    NODE_DISTRO="linux-arm64"
 else
-    echo "Git已安装，跳过此步骤."
+    echo "不支持的架构: $ARCH"
+    exit 1
 fi
 
-# 安装Node.js
-NODE_VERSION="20.4.0"
-if ! command -v node &> /dev/null || [[ "$(node -v)" != "v$NODE_VERSION" ]]; then
-    echo "安装Node.js..."
-    pkg install nodejs -y
-    # 如果上面的命令没有安装20.4.0或更高版本的Node.js，您可能需要手动下载并安装它
-else
-    echo "Node.js已安装，跳过此步骤."
-fi
+echo "安装 Node.js 版本 $NODE_VERSION..."
+wget "https://nodejs.org/dist/$NODE_VERSION/node-$NODE_VERSION-$NODE_DISTRO.tar.xz"
+tar -xf "node-$NODE_VERSION-$NODE_DISTRO.tar.xz"
+export PATH=$PATH:~/node-$NODE_VERSION-$NODE_DISTRO/bin
 
-# 克隆clewd仓库
-REPO_URL="https://github.com/teralomaniac/clewd.git"
-echo "克隆clewd仓库: $REPO_URL"
-git clone $REPO_URL || { echo "无法克隆仓库"; exit 1; }
+# 更新 npm 到最新版本
+npm install -g npm@latest
 
-# 进入clewd目录并安装依赖项
-echo "进入clewd目录..."
+# 克隆 clewd 项目
+echo "克隆 clewd 项目..."
+git clone https://github.com/teralomaniac/clewd.git
+
+# 进入 clewd 目录
 cd clewd
 
-echo "安装依赖项..."
-npm install --no-audit --fund false || { echo "安装依赖失败"; exit 1; }
+# 安装 clewd 依赖项
+echo "安装 clewd 依赖项..."
+npm install
 
-# 运行clewd.js
-echo "运行clewd.js..."
-node clewd.js || { echo "运行clewd.js失败"; exit 1; }
-
+# 运行 clewd
 echo "clewd已经启动！配置文件已创建！
 使用文件管理器编辑 config.js 以添加cookie，然后cd clewd 重启"
+node clewd.js
