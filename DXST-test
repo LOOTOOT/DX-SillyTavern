@@ -5,21 +5,12 @@ set -e
 # 声明信息
 echo "本脚本由道行歌/JoeY制作"
 echo "酒馆是一个使用各种AI的工具，用户需自备能使用AI的代理、API或曲奇。如需咨询酒馆如何连接claude等问题，可在必要时查看爱发电主页联系作者"
-echo "爱发电地址：https://afdian.net/a/JoeY400 请理解，作者的时间也非常宝贵。"
+echo "爱发电地址：https://afdian.net/a/JoeY400请理解，作者的时间也非常宝贵。"
 echo "脚本执行中..."
 
 # 检查网络状况
 echo "检查网络连接..."
 ping -c 1 google.com > /dev/null 2>&1 || { echo "网络连接失败，请检查你的网络设置。梯子不行就换，信号不行就wifi,5G互换"; exit 1; }
-
-# 创建 sources.list.d 目录，如果它不存在的话
-mkdir -p $PREFIX/etc/apt/sources.list.d
-
-# 设置默认软件源
-echo "设置默认软件源..."
-echo "deb https://packages.termux.org/apt/termux-main stable main" > $PREFIX/etc/apt/sources.list
-echo "deb https://packages.termux.org/apt/termux-games games stable" > $PREFIX/etc/apt/sources.list.d/game.list
-echo "deb https://packages.termux.org/apt/termux-science science stable" > $PREFIX/etc/apt/sources.list.d/science.list
 
 # 更新软件包信息
 echo "更新软件包信息..."
