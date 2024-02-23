@@ -2,10 +2,6 @@
 
 set -e
 
-# 设置 Termux 的 PREFIX 环境变量
-PREFIX=/data/data/com.termux/files/usr
-export PREFIX
-
 # 声明信息
 echo "本脚本由道行歌/JoeY制作"
 echo "酒馆是一个使用各种AI的工具，用户需自备能使用AI的代理、API或曲奇。如需咨询酒馆如何连接claude等问题，可在必要时查看爱发电主页联系作者"
@@ -21,9 +17,9 @@ mkdir -p $PREFIX/etc/apt/sources.list.d
 
 # 设置默认软件源
 echo "设置默认软件源..."
-echo "deb https://termux.org/packages/ stable main" > $PREFIX/etc/apt/sources.list
-echo "deb https://grimler.se/game-packages-24 games stable" > $PREFIX/etc/apt/sources.list.d/game.list
-echo "deb https://grimler.se/science-packages-24 science stable" > $PREFIX/etc/apt/sources.list.d/science.list
+echo "deb https://packages.termux.org/apt/termux-main/ stable main" > $PREFIX/etc/apt/sources.list
+echo "deb https://packages.termux.org/apt/termux-games games stable" > $PREFIX/etc/apt/sources.list.d/game.list
+echo "deb https://packages.termux.org/apt/termux-science science stable" > $PREFIX/etc/apt/sources.list.d/science.list
 
 # 更新软件包信息
 echo "更新软件包信息..."
